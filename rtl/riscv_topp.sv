@@ -120,21 +120,29 @@ module riscv_topp(
          u = i_imm;
       end
 
+      if (E_M_b_en==1 || b_en==1 || D_E_UJ_en==1 || D_E_jalr_en==1 || E_M_jalr_en==1) begin
+         F_D_inst1=32'h00000013;
+      end else begin
+         F_D_inst1=F_D_inst;         
+      end
+
       if (stall==1 || E_M_b_en==1 || b_en==1 || D_E_UJ_en==1 || D_E_jalr_en==1 || E_M_jalr_en==1) begin
          branch1 =0;
          ld_en1  =0;
          rd_en1  =0;
          str_en1 =0;
          jalr_en1=0;
-         F_D_inst1=32'h00000013;
+         UJ_en1  =0;
       end else begin
          branch1 = branch;
          ld_en1  = ld_en;
          rd_en1  = rd_en;
          str_en1 = str_en;
          jalr_en1= jalr_en;
-         F_D_inst1=F_D_inst;         
+         UJ_en1  = UJ_en;
       end
+
+
 
       if(forward1==1) begin
          rs1_data1=rd_data;
@@ -147,11 +155,6 @@ module riscv_topp(
          rs2_data1=rs2_data;
       end
 
-      if (stall==1 || E_M_b_en==1 || b_en==1 || D_E_UJ_en==1 || D_E_jalr_en==1 || E_M_jalr_en==1) begin
-         UJ_en1=0;
-      end else begin
-         UJ_en1 = UJ_en;
-      end
   
 
       D_E = {sb_imm,rs2_adr,rs1_adr,imm_sel,auipc_en,u_imm,F_D_pc,U_en,jalr_en1,UJ_en,rd_adr,str_en1,rd_en1,ld_en1,func3,branch1,alu_sel,u,rs2_data1,rs1_data1};
