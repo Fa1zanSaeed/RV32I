@@ -4,7 +4,7 @@ module fetch(
   output logic [31:0] inst,
   output logic [31:0] pc);
   
- logic [23:0] b;
+ logic [11:0] b;
  pc_counter pc_counter1(.reset(reset),
                .clk(clk),
                .PC(pc),
@@ -18,11 +18,12 @@ module fetch(
   
     
 
- instmem instmem1(.adr(b),
+ instmem instmem1(.clk(clk),
+              .adr(b),
               .data_out(inst)); 
   
   always_comb begin
-     b [23:0] =  pc [25:2];
+     b [11:0] =  pc [13:2];
   end
 endmodule
 
