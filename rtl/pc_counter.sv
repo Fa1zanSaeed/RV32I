@@ -18,7 +18,7 @@ module pc_counter(
       end else if (b_en==1) begin
          PC <= PC + SBimm -8;
       end else if (stall==1) begin
-         PC <= PC;
+         PC <= PC-4;
       end else begin
          PC<=PC + 4;
       end

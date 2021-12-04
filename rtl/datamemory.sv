@@ -14,13 +14,11 @@ module datamemory(
         if (WE[2]) mem[adr][23:16] <= data_in[23:16];
         if (WE[3]) mem[adr][31:24] <= data_in[31:24];
       end
-  end
-  
-  always_comb begin
+
       if (ld==1) begin
-          data_out = mem[adr];
+          data_out <= mem[adr];
       end else begin
-          data_out = 32'd0;
+          data_out <= 32'd0;
       end
 
   end
