@@ -20,8 +20,10 @@ module fetch(
 
  instmem instmem1(.clk(clk),
               .adr(b),
+              .data_in(),
+              .WE(),
+              .EN(1'b1),
               .data_out(inst)); 
-  
   always_comb begin
      b [11:0] =  pc [13:2];
   end

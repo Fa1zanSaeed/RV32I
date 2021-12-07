@@ -8,7 +8,7 @@ module pc_counter(
    PC= 0;
   end
  always @(posedge clk) begin
-    if (reset) begin
+    if (reset==1) begin
      PC <= 0;
     end else if (clk) begin
       if (jalr==1) begin

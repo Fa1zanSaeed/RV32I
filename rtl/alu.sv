@@ -3,6 +3,7 @@ module alu(
   input  logic [3:0]  func3,
   input  logic [31:0] rs1,rs2,
   output logic [31:0]  data_out);
+
   logic [3:0] sel;
   assign sel =func3;
   always_comb
@@ -44,8 +45,7 @@ module alu(
          4'd8:  data_out= rs1-rs2;
          4'd9:  data_out= rs1+rs2;
          4'd13:  data_out= rs1>>>rs2;
-         default: data_out=32'd0;
-         
+         default: data_out=32'd0;         
       endcase
   end
 endmodule

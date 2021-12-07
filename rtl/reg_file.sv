@@ -31,7 +31,7 @@ module reg_file(
     end
   end  
       
-   assign regis[0] = 32'd0;     
+  assign regis[0] = 32'd0;     
    
 endmodule
 
