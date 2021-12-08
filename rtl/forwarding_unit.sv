@@ -1,10 +1,19 @@
 module forwarding_unit(
-  input  logic E_M_rd_en,M_D_rd_en,
-  input  logic [4:0] D_E_rs1_adr,D_E_rs2_adr,E_M_rd_adr,M_D_rd_adr,rs1_adr,rs2_adr,
-  output logic [1:0] forwardA,forwardB,
-  output logic forward1,forward2);
+  input  logic       E_M_rd_en,
+  input  logic       M_D_rd_en,
+  input  logic [4:0] D_E_rs1_adr,
+  input  logic [4:0] D_E_rs2_adr,
+  input  logic [4:0] E_M_rd_adr,
+  input  logic [4:0] M_D_rd_adr,
+  input  logic [4:0] rs1_adr,
+  input  logic [4:0] rs2_adr,
+  output logic [1:0] forwardA,
+  output logic [1:0] forwardB,
+  output logic       forward1,
+  output logic       forward2
+ );
 
-always_comb begin
+ always_comb begin
 
    if (E_M_rd_en==1 && E_M_rd_adr!=5'd0 && E_M_rd_adr==D_E_rs1_adr) begin
      forwardA = 2'b10;
@@ -33,9 +42,6 @@ always_comb begin
      forward2 = 1'b0;
    end
 
-
  end
-
-
 
 endmodule
