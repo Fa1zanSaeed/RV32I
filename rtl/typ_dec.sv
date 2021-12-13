@@ -1,15 +1,16 @@
 module typ_dec(
-  input   logic [6:0] opcode,
-  output  logic       R_type,
-  output  logic       load,
-  output  logic       I_type,
-  output  logic       jalr,
-  output  logic       S_type,
-  output  logic       SB_type,
-  output  logic       U_type,
-  output  logic       UJ_type,
-  output  logic       auipc,
-  output  logic       imm_sel
+  input  logic [6:0] opcode,
+  output logic       R_type,
+  output logic       load,
+  output logic       I_type,
+  output logic       jalr,
+  output logic       S_type,
+  output logic       SB_type,
+  output logic       U_type,
+  output logic       UJ_type,
+  output logic       auipc,
+  output logic       imm_sel,
+  output logic       csr
  );
   
  always_comb begin
@@ -72,6 +73,13 @@ module typ_dec(
     end else begin
        imm_sel = 1'b0;
     end      
-     
+
+    if (opcode==7'h73) begin
+       csr   = 1'b1;
+    end else begin
+       csr   = 1'b0;
+    end      
+
+
  end
 endmodule

@@ -24,6 +24,7 @@ module reg_file(
       if (rd_en==1) begin
          regis[rd] <= rd_data;
       end
+
     end
  end
 
