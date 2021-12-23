@@ -8,16 +8,17 @@ module fetch(
   input  logic [31:0] al,
   input  logic [31:0] UJimm,
   input  logic [31:0] SBimm,
-  output logic [31:0] inst,
-  output logic [31:0] pc
+  output logic [31:0] pc,
+  output logic [11:0] instmem_adr
+  
  );
   
-  logic [11:0] b;
+  assign instmem_adr = pc [13:2];
 
   pc_counter i_pc_counter(
    .reset (reset),
    .clk   (clk  ),
-   .PC    (pc   ),
+   .PC_o  (pc   ),
    .b_en  (b_en ),
    .UJ_en (UJ_en),
    .jalr  (jalr ),
@@ -27,17 +28,4 @@ module fetch(
    .stall (stall)
   );
   
-  instmem i_instmem(
-   .clk      (clk ),
-   .adr      (b   ),
-   .data_in  (    ),
-   .WE       (    ),
-   .EN       (1'b1),
-   .data_out (inst)
-  ); 
-
- always_comb begin
-  b [11:0] =  pc [13:2];
- end
-
 endmodule

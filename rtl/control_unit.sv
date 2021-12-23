@@ -12,9 +12,9 @@ module control_unit(
   output logic        rs2_en,
   output logic        mem_read,
   output logic        branch,
-  output logic        UJ,
+  output logic        UJ_en,
   output logic        jalr,
-  output logic        U,
+  output logic        U_en,
   output logic        imm_sel,
   output logic        auipc,
   output logic [ 1:0] csr_op_ctr,
@@ -37,8 +37,8 @@ module control_unit(
    .jalr    (jalr     ),
    .S_type  (mem_write),
    .SB_type (branch   ),
-   .U_type  (U        ),
-   .UJ_type (UJ       ),
+   .U_type  (U_en     ),
+   .UJ_type (UJ_en    ),
    .auipc   (auipc    ),
    .imm_sel (imm_sel  ),
    .csr     (csr_en   )
@@ -52,7 +52,7 @@ module control_unit(
   assign rs2_adr    = inst [24:20];
   assign func7      = inst [31:25];
 
-  assign rd_en  = R_type | I_type    | mem_read | UJ     | csr_read_en | U | jalr;
+  assign rd_en  = R_type | I_type    | mem_read | UJ_en  | csr_read_en | U_en | jalr;
   assign rs1_en = branch | mem_write | I_type   | R_type | csr_rs1_en ;
   assign rs2_en = R_type | mem_write | branch   ;
  

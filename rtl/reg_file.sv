@@ -16,7 +16,7 @@ module reg_file(
    integer i;
 
  always @ (posedge clk) begin     
-    if(reset==1) begin
+    if(!reset) begin
       for ( i=0;i<32;i++) begin
          regis[ i] <= 32'd0;
       end
