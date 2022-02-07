@@ -12,19 +12,20 @@ module reg_file(
   output logic [31:0] rs2_data
  );
   
-   reg [31:0] regis [0:31];
+   logic [31:0] regis [0:31];
    integer i;
-
  always @ (posedge clk) begin     
     if(!reset) begin
       for ( i=0;i<32;i++) begin
          regis[ i] <= 32'd0;
       end
     end else begin
-      if (rd_en==1) begin
+      if (rd_en==1 && rd!=5'd0) begin
          regis[rd] <= rd_data;
       end
-
+      else if (rd_en==1 && rd==5'd0) begin
+         regis[rd] <= 32'd0;
+      end
     end
  end
 
@@ -32,15 +33,12 @@ module reg_file(
     if (rs1_en==1) begin
        rs1_data = regis[rs1];
     end else begin
-       rs1_data = 32'd0;
+       rs1_data = 32'd?;
     end
     if (rs2_en==1) begin
        rs2_data = regis[rs2];
     end else begin
-       rs2_data = 32'd0;
+       rs2_data = 32'd?;
     end
- end  
-      
-  assign regis[0] = 32'd0;     
-   
+ end    
 endmodule

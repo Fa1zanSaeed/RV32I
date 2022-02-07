@@ -1,7 +1,8 @@
 module riscv_topp(
   input  logic clk,
   input  logic reset
- );
+  );
+
  // AXI-lite interface signals for instruction memory \\
  
  // Write address channel signals 

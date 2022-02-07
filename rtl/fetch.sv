@@ -8,24 +8,23 @@ module fetch(
   input  logic [31:0] al,
   input  logic [31:0] UJimm,
   input  logic [31:0] SBimm,
-  output logic [31:0] pc,
-  output logic [11:0] instmem_adr
+  output logic [31:0] PC_o
   
  );
-  
-  assign instmem_adr = pc [13:2];
-
-  pc_counter i_pc_counter(
-   .reset (reset),
-   .clk   (clk  ),
-   .PC_o  (pc   ),
-   .b_en  (b_en ),
-   .UJ_en (UJ_en),
-   .jalr  (jalr ),
-   .al    (al   ),
-   .UJimm (UJimm),
-   .SBimm (SBimm),
-   .stall (stall)
-  );
+ always @(posedge clk) begin
+    if (!reset) begin
+     PC_o <= 32'd0;
+    end else if (jalr==1) begin
+        PC_o <= al ;
+    end else if (UJ_en==1) begin
+        PC_o <= PC_o + UJimm - 32'd4;
+    end else if (b_en==1) begin
+        PC_o <= PC_o + SBimm - 32'd8;
+    end else if (stall==1) begin
+        PC_o <= PC_o - 32'd4;
+    end else begin
+        PC_o <= PC_o + 32'd4;
+    end
+ end
   
 endmodule

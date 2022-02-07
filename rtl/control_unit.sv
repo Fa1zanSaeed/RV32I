@@ -52,8 +52,8 @@ module control_unit(
   assign rs2_adr    = inst [24:20];
   assign func7      = inst [31:25];
 
-  assign rd_en  = R_type | I_type    | mem_read | UJ_en  | csr_read_en | U_en | jalr;
-  assign rs1_en = branch | mem_write | I_type   | R_type | csr_rs1_en ;
+  assign rd_en  = R_type | I_type    | mem_read | UJ_en  | csr_read_en | U_en       | jalr;
+  assign rs1_en = branch | mem_write | mem_read | I_type | R_type      | csr_rs1_en ;
   assign rs2_en = R_type | mem_write | branch   ;
  
  always_comb begin

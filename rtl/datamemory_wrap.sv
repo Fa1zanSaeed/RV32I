@@ -32,11 +32,12 @@ module datamemory_wrap(
  output logic        rresp
  );
 
- logic [11:0] adr_i;
- logic [31:0] data_in;
- logic [ 3:0] WE_i;
+ logic [11:0] adr_i   ;
+ logic [31:0] data_in ;
+ logic [ 3:0] WE_i    ;
  logic [31:0] data_out;
- logic        EN_i;
+ logic        EN_i    ;
+ logic [ 1:0] sel     ;
 
   datamemory i_datamemory(
     .adr      (adr_i   ),
@@ -46,8 +47,6 @@ module datamemory_wrap(
     .EN_i     (EN_i    ),
     .data_out (data_out)
   );
-
-  assign adr_i  =((awready==1 && awvalid==1) || (arready==1 && arvalid==1))? awaddr:12'b?;
 
   assign data_in=(wready==1  && wvalid==1 )? wdata   :32'b?;
   assign WE_i   =(wready==1  && wvalid==1 )? wstrb   : 4'b?;
@@ -74,5 +73,21 @@ module datamemory_wrap(
     rresp   = 1'b1;
     rvalid  = 1'b1;
    end
+
+   if (awready==1 && awvalid==1) begin
+    sel = 2'b00;
+   end else if (arready==1 && arvalid==1) begin
+    sel = 2'b01;
+   end else begin
+    sel = 2'b11;
+   end
+
+   
+   case (sel)
+   2'b00   : adr_i = awaddr;
+   2'b01   : adr_i = araddr;
+   default : adr_i = 12'd0 ;
+   endcase
  end
 endmodule
+

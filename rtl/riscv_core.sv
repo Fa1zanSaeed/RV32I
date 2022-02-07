@@ -72,16 +72,15 @@ module riscv_core(
   logic        D_E_auipc_en,E_M_auipc_en,M_D_auipc_en;
   logic        csr_imm_en,D_E_csr_imm_en,csr_read_en,D_E_csr_read_en;
 
-  logic [ 1:0] forwardA,forwardB,csr_op_ctr,D_E_csr_op_ctr;
+  logic [ 1:0] csr_op_ctr,D_E_csr_op_ctr;
  
-  logic [ 3:0] func3,alu_sel,D_E_alu_sel,D_E_func3,E_M_func3,WE_i,M_D_func3;
+  logic [ 3:0] forwardA,forwardB,func3,alu_sel,D_E_alu_sel,D_E_func3,E_M_func3,WE_i,M_D_func3;
  
   logic [ 4:0] rd_adr,rs1_adr,rs2_adr,D_E_rd_adr,D_E_rs1_adr,D_E_rs2_adr,E_M_rd_adr,M_D_rd_adr;
  
   logic [ 6:0] opcode,func7;
  
   logic [11:0] mem_adr,csr_adr,D_E_csr_adr;
-  logic [11:0] instmem_adr;
 
   logic [31:0] F_D_inst1,rs1_data1,rs2_data1,D_E_sb_imm,D_E_u,D_E_u_imm,D_E_pc,E_M_u_imm,E_M_pc;
   logic [31:0] M_D_u_imm,M_D_pc,D_E_alu1_in,D_E_alu2_in,F_D_pc,E_M_alu_o,M_D_alu_o,inst,rd_data;
@@ -89,15 +88,24 @@ module riscv_core(
   logic [31:0] mem_o,pc,mem_in,l_d,rs1_sltd_data,rs2_sltd_data,alu_o1;
   logic [31:0] csr_rdata_o,csr_imm,D_E_csr_imm,csr_wdata_i;
 
+ assign awvalid_im = 1'b0;
+ assign awaddr_im  = (awvalid_im==1 && awready_im==1)? 12'd0:12'b? ;
+
  assign arvalid_im = 1'b1;
- assign araddr_im  = (arvalid_im==1 && arready_im)? instmem_adr:12'b? ;
+ assign araddr_im  = (arvalid_im==1 && arready_im==1)? pc[13:2]:12'b? ;
 
  assign rready_im  = 1'b1;
- assign inst       = (rvalid_im==1 && rready_im)? rdata_im:32'b? ;
+ assign inst       = (rvalid_im==1 && rready_im==1)? rdata_im:32'b? ;
+
+ assign wvalid_im = 1'b0;
+ assign wdata_im   = (wvalid_im==1 && wready_im==1)? 32'b0:32'b? ;
+ assign wstrb_im   = (wvalid_im==1 && wready_im==1)? 4'd0:4'b? ;
 
  assign awvalid_dm = E_M_str_en;
+ assign awaddr_dm  = (awvalid_dm==1 && awready_dm==1)? mem_adr:12'b? ;
+
  assign arvalid_dm = E_M_ld_en;
- assign awaddr_dm  = ((awvalid_dm==1 && awready_dm) || (arvalid_dm==1 && arready_dm))? mem_adr:12'b? ;
+ assign araddr_dm  = (arvalid_dm==1 && arready_dm==1)? mem_adr:12'b? ;
 
  assign wvalid_dm  = E_M_str_en;
  assign wdata_dm   = (wvalid_dm==1 && wready_dm==1)? mem_in:32'b? ;
@@ -118,19 +126,18 @@ module riscv_core(
     .al          (alu_o      ),
     .UJimm       (uj_imm     ),
     .SBimm       (D_E_sb_imm ),
-    .pc          (pc         ),
-    .stall       (stall      ),
-    .instmem_adr (instmem_adr)
+    .PC_o        (pc         ),
+    .stall       (stall      )
   );
 
   hazard_detection_unit i_hazard_detection_unit(
-    .D_E_ld_en  (D_E_ld_en ),
-    .D_E_rd_adr (D_E_rd_adr),
-    .rs1_adr    (rs1_adr   ),
-    .rs2_adr    (rs2_adr   ),
-    .stall      (stall     )
+    .D_E_ld_en  (D_E_ld_en  ),
+    .D_E_rd_en  (D_E_rd_en  ),
+    .D_E_rd_adr (D_E_rd_adr ),
+    .rs1_adr    (rs1_adr    ),
+    .rs2_adr    (rs2_adr    ),
+    .stall      (stall      )
   );
-      
       
   control_unit i_control_unit(
     .inst        (F_D_inst1  ),
@@ -227,7 +234,7 @@ module riscv_core(
 
       // Fetch Stage \\
 
-      F_D = {pc};
+      F_D = pc;
 
       // Decode Stage \\
 
@@ -279,18 +286,42 @@ module riscv_core(
       // Execute Stage \\ 
 
       // forwarding from memory or write-back stage to execute stage
-      if (forwardA==2'b10) begin
+      if (forwardA==4'b0001) begin
        rs1_sltd_data = E_M_alu_o;
-      end else if (forwardA==2'b01) begin
+      end else if (forwardA==4'b0010) begin
+       rs1_sltd_data = E_M_pc + 32'd4;
+      end else if (forwardA==4'b0011) begin
+       rs1_sltd_data = E_M_u_imm + E_M_pc;
+      end else if (forwardA==4'b0100) begin
+       rs1_sltd_data = E_M_u_imm;
+      end else if (forwardA==4'b0101) begin
        rs1_sltd_data = rd_data;        
+      end else if (forwardA==4'b0110) begin
+       rs1_sltd_data = M_D_pc + 32'd4;
+      end else if (forwardA==4'b0111) begin
+       rs1_sltd_data = M_D_u_imm + M_D_pc;
+      end else if (forwardA==4'b1000) begin
+       rs1_sltd_data = M_D_u_imm;
       end else begin
        rs1_sltd_data = D_E_alu1_in;
       end
 
-      if (forwardB==2'b10) begin
+      if (forwardB==4'b0001) begin
        rs2_sltd_data = E_M_alu_o;
-      end else if (forwardB==2'b01) begin
+      end else if (forwardB==4'b0010) begin
+       rs2_sltd_data = E_M_pc + 32'd4;
+      end else if (forwardB==4'b0011) begin
+       rs2_sltd_data = E_M_u_imm + E_M_pc;
+      end else if (forwardB==4'b0100) begin
+       rs2_sltd_data = E_M_u_imm;
+      end else if (forwardB==4'b0101) begin
        rs2_sltd_data = rd_data;        
+      end else if (forwardB==4'b0110) begin
+       rs2_sltd_data = M_D_pc + 32'd4;
+      end else if (forwardB==4'b0111) begin
+       rs2_sltd_data = M_D_u_imm + M_D_pc;
+      end else if (forwardB==4'b1000) begin
+       rs2_sltd_data = M_D_u_imm;
       end else begin
        rs2_sltd_data = D_E_rs2_data;
       end
